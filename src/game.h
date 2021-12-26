@@ -6,6 +6,9 @@
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480
 
+// gameplay
+#define NUMBER_OF_ENEMIES 3
+
 // load game
 void game();
 

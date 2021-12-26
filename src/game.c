@@ -5,11 +5,21 @@
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 
-extern SDL_Window* window = NULL;
+// window
+SDL_Window* window = NULL;
+SDL_Renderer* renderer = NULL;
+
+// core variable
+int exitProgram = 0;
 
 void game()
 {
     initEngine();
+    initVariable();
+    while(!exitProgram){
+        controlHandling();
+        updateLogic();
+    }
 }
 
 void initEngine()
@@ -28,21 +38,22 @@ void initEngine()
         printf("SDL2_TTF Error: %s\n", TTF_GetError());
         exit(1);
     }
-
-    window = SDL_CreateWindow(GAME_TITLE,
-                            SDL_WINDOWPOS_CENTERED,
-                            SDL_WINDOWPOS_CENTERED,
-                            WINDOW_WIDTH,
-                            WINDOW_HEIGHT,
-                            0);
+    
+    window = SDL_CreateWindow(GAME_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
 
     if(!window) {
         printf("SDL2 Error: %s\n", SDL_GetError());
         SDL_Quit();
         exit(1);
-    }
+    } 
 
-    
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+    if(!renderer) {
+        printf("SDL2 Error: %s\n", SDL_GetError());
+        SDL_Quit();
+        exit(1);
+    }
 }
 
 void initVariable()
@@ -57,5 +68,15 @@ void updateLogic()
 
 void controlHandling()
 {
+    SDL_Event event;
 
+    while(SDL_PollEvent(&event)){
+        switch(event.type){
+            case SDL_QUIT:
+                exitProgram = 1;
+                break;
+            default:
+                break;
+        }
+    }
 }
