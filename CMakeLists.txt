@@ -14,6 +14,7 @@ find_package(SDL2_ttf REQUIRED)
 
 file(GLOB SRC src/*c)
 
+add_compile_options(-Wall -Wextra -pedantic)
 add_executable(${PROJECT_NAME} ${SRC})
 
 target_link_libraries(${PROJECT_NAME} SDL2::Main SDL2::Image SDL2::TTF)
