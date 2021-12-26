@@ -60,7 +60,7 @@ void initEngine()
 
 void initVariable()
 {
-
+    setOpeningVariable();
 }
 
 void updateLogic()
