@@ -1,4 +1,5 @@
 #include "game.h"
+#include "opening.h"
 
 #include <stdio.h>
 #include <SDL.h>
@@ -6,8 +7,8 @@
 #include <SDL_ttf.h>
 
 // window
-extern SDL_Window* window;
-extern SDL_Renderer* renderer;
+SDL_Window* window = NULL; 
+SDL_Renderer* renderer = NULL;
 
 // core variable
 int exitProgram = 0;
@@ -17,6 +18,7 @@ void game()
     initEngine();
     initVariable();
     while(!exitProgram){
+        opening();
         controlHandling();
         updateLogic();
     }
@@ -39,7 +41,7 @@ void initEngine()
         exit(1);
     }
     
-    SDL_Window* window = SDL_CreateWindow(GAME_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
+    window = SDL_CreateWindow(GAME_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
 
     if(!window) {
         printf("SDL2 Error: %s\n", SDL_GetError());
@@ -47,7 +49,7 @@ void initEngine()
         exit(1);
     } 
 
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
     if(!renderer) {
         printf("SDL2 Error: %s\n", SDL_GetError());

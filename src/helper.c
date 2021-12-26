@@ -9,7 +9,10 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-SDL_Surface* write(TTF_Font* font, const char* text, SDL_Color* color)
+extern SDL_Window* window;
+extern SDL_Renderer* renderer;
+
+SDL_Surface* loadTextSurface(TTF_Font* font, const char* text, SDL_Color* color)
 {
     return TTF_RenderText_Solid(font, text, *color);
 }
@@ -25,6 +28,8 @@ SDL_Surface* loadSurface(const char* path)
         SDL_Quit();
         exit(1);
     }
+
+    return image;
 }
 
 SDL_Surface* clearBackground(SDL_Surface* surface, SDL_Color* color)
@@ -52,7 +57,7 @@ SDL_Texture* loadTexture(SDL_Surface* surface)
 
 void getData(const char* path, char* data, int row)
 {
-    File *file = fopen(path, "r");
+    FILE *file = fopen(path, "r");
     char buff[1024];
     if(file){
         strcpy(data,"");
@@ -68,7 +73,7 @@ void getData(const char* path, char* data, int row)
 
 void insert(const char* path, char* data)
 {
-    File *file = fopen(path, "a");
+    FILE *file = fopen(path, "a");
     if(file){
         fprintf(file, "%s\n", data); 
     } else
@@ -77,8 +82,8 @@ void insert(const char* path, char* data)
 }
 
 void sortChamp(const char* source, const char* destination){
-    File *srcFile = fopen(source, "r");
-    File *dstFile = fopen(destination, "w");
+    FILE *srcFile = fopen(source, "r");
+    FILE *dstFile = fopen(destination, "w");
     char x_buff[255];
     char y_buff[255];
     char z_buff[255];
@@ -86,9 +91,9 @@ void sortChamp(const char* source, const char* destination){
     char chmp[3][255];
     int changedRank = 0;
 
-    if(srcFile && tmpFile){
+    if(srcFile && dstFile){
         for(int i = 0; i < 3; i++) strcpy(chmp[i], "");
-        while(fgets(x_buff, sizeof(x_buff), orgFile)){
+        while(fgets(x_buff, sizeof(x_buff), srcFile)){
             changedRank = 0;
             if(strcmp(chmp[0], "") == 0)
                 strcpy(chmp[0], x_buff);
@@ -144,7 +149,7 @@ void sortChamp(const char* source, const char* destination){
             }
         }
 
-        fprintf(tmpFile, "%s", result);
+        fprintf(dstFile, "%s", result);
     } else
         printf("error can't load file");
     fclose(srcFile);
