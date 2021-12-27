@@ -21,6 +21,35 @@ void getData(const char* path, char* data, int row)
     fclose(file);
 }
 
+char* getSpecificData(const char* path, char *comparator)
+{
+    FILE* file = fopen(path, "r");
+    char buff[255];
+    char cmp[255];
+    char* result = malloc(255);
+    if(file){
+        strcpy(buff,"");
+        while(fgets(buff, sizeof(buff), file)){
+            strcpy(cmp, "");
+            strcpy(cmp, buff);
+            if(strcmp(strtok(cmp, ":"), comparator) == 0){
+                strcpy(result, buff);
+                return result;
+            }
+        }
+    } else
+        printf("error can't load file");
+    fclose(file);
+    return "";
+}
+
+char* getAnotherSide(char* data, char *separator){
+    char* result = malloc(255);
+    result = strtok(data, separator);
+    result = strtok(NULL, separator);
+    return result;
+}
+
 void insert(const char* path, char* data)
 {
     FILE *file = fopen(path, "a");
@@ -52,7 +81,6 @@ void sortChamp(const char* source, const char* destination){
             else if(strcmp(chmp[2], "") == 0)
                 strcpy(chmp[2], x_buff);
             else{
-                printf("0 %d\n 1 %d\n 2 %d\n", atoi(chmp[0]), atoi(chmp[1]), atoi(chmp[2]));
                 if(atoi(chmp[0]) < atoi(x_buff) && changedRank == 0){
                     strcpy(y_buff, chmp[0]);
                     strcpy(chmp[0], x_buff);
