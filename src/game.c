@@ -1,5 +1,6 @@
 #include "game.h"
 #include "opening.h"
+#include "auth.h"
 
 #include <stdio.h>
 #include <SDL.h>
@@ -13,6 +14,14 @@ SDL_Renderer* renderer = NULL;
 // core variable
 int exitProgram = 0;
 int currentPage = 0;
+int doesInput   = 0;
+
+extern int selectedOption;
+extern int selectedForm;
+extern int currentProcess;
+extern char inputUsername[100];
+extern char inputPassword[100];
+extern char authError[255];
 
 void game()
 {
@@ -21,7 +30,11 @@ void game()
     while(!exitProgram){
         switch(currentPage){
             case 0:
-            opening();
+                opening();
+                break;
+            case 1:
+                auth();
+                break;
         }
         controlHandling();
         updateLogic();
@@ -65,6 +78,7 @@ void initEngine()
 void initVariable()
 {
     setOpeningVariable();
+    setAuthVariable();
 }
 
 void updateLogic()
@@ -76,8 +90,56 @@ void controlHandling()
 {
     SDL_Event event;
 
+    SDL_StartTextInput();
     while(SDL_PollEvent(&event)){
         switch(event.type){
+            case SDL_KEYDOWN:
+            { 
+                doesInput = 1;
+                switch(event.key.keysym.sym){
+                    case SDLK_RETURN:
+                        if(currentPage == 0)
+                            currentPage++;
+                        else
+                        if(currentPage == 1 && currentProcess == 0)
+                            currentProcess++;
+                        else
+                        if(currentPage == 1 && currentProcess == 1)
+                           authProcess(); 
+                        break;             
+                    case SDLK_UP:
+                        if(currentPage == 1) 
+                            selectedOption = (selectedOption <= 0) ? 1 : selectedOption - 1;
+                        break;
+                    case SDLK_DOWN:
+                        if(currentPage == 1)
+                            selectedOption = (selectedOption+1)%2;
+                        break;
+                    case SDLK_TAB:
+                        if(currentPage == 1) 
+                            selectedForm = (selectedForm+1)%2;
+                        break;
+                    case SDLK_BACKSPACE:
+                        if(currentPage == 1){
+                            if(selectedForm == 0 && strlen(inputUsername) > 0)
+                                inputUsername[strlen(inputUsername)-1] = '\0';
+                            if(selectedForm == 1 && strlen(inputPassword) > 0)
+                                inputPassword[strlen(inputPassword)-1] = '\0';
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            }
+            case SDL_TEXTINPUT:
+                if(currentPage == 1) {
+                    if(selectedForm == 0 && strlen(inputUsername) < 30)
+                        strcat(inputUsername, event.text.text);
+                    if(selectedForm == 1 && strlen(inputPassword) < 30)
+                        strcat(inputPassword, event.text.text);
+                }
+                break;
             case SDL_QUIT:
                 exitProgram = 1;
                 break;
@@ -85,4 +147,5 @@ void controlHandling()
                 break;
         }
     }
+    SDL_StopTextInput();
 }
