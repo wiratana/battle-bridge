@@ -15,6 +15,7 @@ void game();
 // core concept
 void initEngine();
 void initVariable();
+void setGameVariable();
 void updateLogic();
 void controlHandling(); 
 

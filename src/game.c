@@ -12,13 +12,17 @@ SDL_Renderer* renderer = NULL;
 
 // core variable
 int exitProgram = 0;
+int currentPage = 0;
 
 void game()
 {
     initEngine();
     initVariable();
     while(!exitProgram){
-        opening();
+        switch(currentPage){
+            case 0:
+            opening();
+        }
         controlHandling();
         updateLogic();
     }
