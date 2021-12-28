@@ -1,6 +1,7 @@
 #include "game.h"
 #include "opening.h"
 #include "auth.h"
+#include "gameplay.h"
 
 #include <stdio.h>
 #include <SDL.h>
@@ -22,18 +23,28 @@ extern int currentProcess;
 extern char inputUsername[100];
 extern char inputPassword[100];
 extern char authError[255];
+extern SDL_Rect dstTank;
+extern struct player player;
+extern struct bullet bullet;
+extern int isFire;
 
 void game()
 {
     initEngine();
     initVariable();
     while(!exitProgram){
+        SDL_RenderClear(renderer);
         switch(currentPage){
             case 0:
                 opening();
                 break;
             case 1:
                 auth();
+                break;
+            case 2:
+                gameplay();
+                break;
+            default:
                 break;
         }
         controlHandling();
@@ -79,11 +90,12 @@ void initVariable()
 {
     setOpeningVariable();
     setAuthVariable();
+    setGameplayVariable();
 }
 
 void updateLogic()
 {
-
+    updateGameplayVariable();
 }
 
 void controlHandling()
@@ -110,10 +122,20 @@ void controlHandling()
                     case SDLK_UP:
                         if(currentPage == 1) 
                             selectedOption = (selectedOption <= 0) ? 1 : selectedOption - 1;
+                        if(currentPage == 2 && dstTank.y > 1) 
+                            dstTank.y -= player.speed;
                         break;
                     case SDLK_DOWN:
                         if(currentPage == 1)
                             selectedOption = (selectedOption+1)%2;
+                        if(currentPage == 2 && dstTank.y < WINDOW_HEIGHT - dstTank.h)
+                            dstTank.y += player.speed;
+                        break;
+                    case SDLK_SPACE:
+                        if(currentPage == 2 && bullet.status == 0){
+                           bullet.status = 1;
+                           isFire = 1;
+                        }
                         break;
                     case SDLK_TAB:
                         if(currentPage == 1) 

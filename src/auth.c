@@ -140,16 +140,6 @@ void form()
     SDL_RenderCopy(renderer, passwordForm, NULL, &dstPasswordForm);
 }
 
-void login()
-{
-    form();
-}
-
-void registration()
-{
-    form(); 
-}
-
 void authProcess()
 {
     authError[0] = '\0';

@@ -4,7 +4,5 @@ void setAuthVariable();
 void auth();
 void authOption();
 void form();
-void login();
-void registration();
 void authProcess();
 #endif 
