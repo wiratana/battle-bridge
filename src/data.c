@@ -5,16 +5,33 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-void getData(const char* path, char* data, int row)
+void getData(const char* path, char* data, int row, int reverseOrder)
 {
     FILE *file = fopen(path, "r");
     char buff[1024];
     if(file){
-        strcpy(data,"");
-        for(int i = 0;  i < row; i++){
-            strcpy(buff,"");
-            fgets(buff, sizeof(buff), file);
-            strcat(data, buff);
+	char ch;
+	int lines;
+	while(!feof(file))
+	{
+	    ch = fgetc(file);
+	    if(ch == '\n')
+	    {
+		lines++;
+	    }
+	}
+	row = (lines < row) ? lines : row;
+
+	strcpy(data, "");
+	strcpy(buff, "");
+	int ctr = 0;
+	rewind(file);
+	while(fgets(buff, sizeof(buff), file)){
+	    if((!reverseOrder && ctr <= row))
+		strcat(data, buff);
+	    if(reverseOrder && ctr >= (lines-row))
+		strcpy(data, strcat(buff, data));
+	    ctr++;
         }
     } else
         printf("error can't load file");
@@ -43,6 +60,26 @@ char* getSpecificData(const char* path, char *comparator)
     return "";
 }
 
+int getID(const char* path, char *comparator)
+{
+    FILE* file = fopen(path, "r");
+    char buff[255];
+    char cmp[255];
+    int ctr = 0;
+    if(file){
+        strcpy(buff,"");
+        while(fgets(buff, sizeof(buff), file)){
+            strcpy(cmp, "");
+            strcpy(cmp, buff);
+            if(strcmp(strtok(cmp, ":"), comparator) == 0) return ctr;
+	    ctr++;
+        }	
+    } else
+        printf("error can't load file");
+    fclose(file);
+    return 0;
+}
+
 char* getAnotherSide(char* data, char *separator){
     char* result = malloc(255);
     result = strtok(data, separator);
@@ -54,7 +91,7 @@ void insert(const char* path, char* data)
 {
     FILE *file = fopen(path, "a");
     if(file){
-        fprintf(file, "%s\n", data); 
+        fprintf(file, "%s", data); 
     } else
         printf("error can't load file");
     fclose(file);
