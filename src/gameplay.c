@@ -1,12 +1,17 @@
 #include "gameplay.h"
 #include "helper.h"
 #include "game.h"
+#include "board.h"
+#include "auth.h"
+#include "data.h"
 
 #include <stdio.h>
 #include <SDL.h>
+#include <time.h>
 
 extern SDL_Renderer* renderer;
 extern int currentPage;
+extern struct user playerInfo;
 static TTF_Font* font;
 static SDL_Color color; 
 static SDL_Color white; 
@@ -21,18 +26,24 @@ static SDL_Rect dstBridge;
 static SDL_Rect dstShip[3];
 static SDL_Rect dstBullet;
 static SDL_Rect dstScore;
+static char buffForPath[512];
 
 SDL_Rect dstTank;
 int lastScore = 0;
 char buffForScore[11];
+char buffForLog[512];
 struct enemy enemies[3];
 struct player player;
 struct bullet bullet;
-int isFire = 0;
-int gameOver = 0;
+int isFire;
+int gameOver;
 int randSpeed[2] = {1, 2};
+time_t now;
 
 void setGameplayVariable(){
+    lastScore = 0;
+    isFire = 0;
+    gameOver = 0;
     font = TTF_OpenFont("res/font/UbuntuMono-Regular.ttf", 24);
     color.r = 255;
     color.g = 255;
@@ -130,7 +141,14 @@ void updateGameplayVariable()
         if(dstBullet.x >= WINDOW_WIDTH-dstBullet.w)
             bullet.status = 0;
  
-        if(gameOver)
-            currentPage = 0;
+        if(gameOver){
+            currentPage++;
+	    time(&now);
+	    sprintf(buffForLog, "%s | %d | %s", playerInfo.username, lastScore, ctime(&now));
+	    sprintf(buffForPath, "data/%d.txt", getID("data/user.txt",playerInfo.username));
+	    insert(buffForPath, buffForLog);
+	    prepareData(); 
+	    setGameplayVariable();
+	}
     }
 }

@@ -2,6 +2,7 @@
 #include "opening.h"
 #include "auth.h"
 #include "gameplay.h"
+#include "board.h"
 
 #include <stdio.h>
 #include <SDL.h>
@@ -44,6 +45,9 @@ void game()
             case 2:
                 gameplay();
                 break;
+	    case 3:
+		board();
+		break;
             default:
                 break;
         }
@@ -91,6 +95,7 @@ void initVariable()
     setOpeningVariable();
     setAuthVariable();
     setGameplayVariable();
+    setBoardVariable();
 }
 
 void updateLogic()
@@ -118,6 +123,9 @@ void controlHandling()
                         else
                         if(currentPage == 1 && currentProcess == 1)
                            authProcess(); 
+			else
+			if(currentPage == 3)
+			    currentPage = 0;
                         break;             
                     case SDLK_UP:
                         if(currentPage == 1) 

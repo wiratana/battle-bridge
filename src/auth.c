@@ -2,6 +2,7 @@
 #include "helper.h"
 #include "game.h"
 #include "data.h"
+#include "board.h"
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -40,6 +41,7 @@ char inputPassword[50];
 char authError[255];
 char buffer[525];
 int currentProcess;
+struct user playerInfo;
 
 void setAuthVariable()
 {
@@ -155,10 +157,12 @@ void authProcess()
     if(selectedOption == 0 && strcmp(getAnotherSide(getSpecificData("data/user.txt", inputUsername), ":"), strcat(inputPassword,"\n")) != 0)
         strcpy(authError, "Your password don't match with our record");
     else{
-        if(selectedOption == 0)
+        if(selectedOption == 0){
+	    strcpy(playerInfo.username, inputUsername); 
             currentPage++;
-        if(selectedOption == 1){
-            sprintf(buffer, "%s:%s", inputUsername, inputPassword);
+	}
+        if(selectedOption == 1){ 
+            sprintf(buffer, "%s:%s\n", inputUsername, inputPassword);
             insert("data/user.txt", buffer);
             selectedOption--;
         }
