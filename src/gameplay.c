@@ -1,6 +1,6 @@
 #include "gameplay.h"
-#include "helper.h"
-#include "game.h"
+#include "helper.h" 
+#include "game.h" 
 #include "board.h"
 #include "auth.h"
 #include "data.h"
@@ -22,17 +22,22 @@ static SDL_Texture* ship;
 static SDL_Texture* playerBullet;
 static SDL_Texture* enemyBullet;
 static SDL_Texture* score;
+static SDL_Texture* wave;
 static SDL_Rect dstBackground;
 static SDL_Rect dstBridge;
 static SDL_Rect dstShip[3];
 static SDL_Rect dstBullet;
 static SDL_Rect dstEnemyBullet[3];
 static SDL_Rect dstScore;
+static SDL_Rect dstWave;
 static char buffForPath[512];
 
 SDL_Rect dstTank;
-int lastScore = 0;
+int lastScore;
+int lastWave;
+int waveCounter;
 char buffForScore[11];
+char buffForWave[11];
 char buffForLog[512];
 struct enemy enemies[3];
 struct player player;
@@ -43,6 +48,8 @@ time_t now;
 
 void setGameplayVariable(){
     lastScore = 0;
+    lastWave = 0;
+    waveCounter = 0;
     player.pbullet.isFire = 0;
     gameOver = 0;
     font = TTF_OpenFont("res/font/UbuntuMono-Regular.ttf", 24);
@@ -59,7 +66,9 @@ void setGameplayVariable(){
     playerBullet = loadTexture(clearBackground(loadSurface("res/image/bullet.png"),&white));
     enemyBullet = loadTexture(clearBackground(loadSurface("res/image/enemy_bullet.png"),&white));
     sprintf(buffForScore, "%d", lastScore);
+    sprintf(buffForWave, "%d", lastWave);
     score = loadTexture(loadTextSurface(font,buffForScore,&color));
+    wave = loadTexture(loadTextSurface(font,buffForWave,&color));
     dstBackground.x = 140;
     dstBackground.y = 0;
     dstBackground.w = 500;
@@ -78,8 +87,12 @@ void setGameplayVariable(){
     dstBullet.h = 25; 
     dstScore.x = WINDOW_WIDTH-120;
     dstScore.y = 20;
-    dstScore.w = 75;
-    dstScore.h = 50;
+    dstScore.w = 50;
+    dstScore.h = 25;
+    dstWave.x = WINDOW_WIDTH-120;
+    dstWave.y = 50;
+    dstWave.w = 50;
+    dstWave.h = 25;
     int enemyDistance = 125;
     for(int i = 0; i < 3; i++){
         dstShip[i].x = 220+i*enemyDistance;
@@ -106,10 +119,10 @@ void gameplay()
     SDL_RenderCopy(renderer, bridge, NULL, &dstBridge); 
     SDL_RenderCopy(renderer, tank, NULL, &dstTank); 
     SDL_RenderCopy(renderer, score, NULL, &dstScore);
+    SDL_RenderCopy(renderer, wave, NULL, &dstWave);
     for(int i = 0; i < 3; i++){
         SDL_RenderCopy(renderer, ship, NULL, &dstShip[i]); 
     } 
-    printf("player bullet status : %d\n", player.pbullet.status);
     if(player.pbullet.status)
         SDL_RenderCopy(renderer, playerBullet, NULL, &dstBullet); 
     for(int i = 0; i < 3; i++){
@@ -185,11 +198,18 @@ void updateGameplayVariable()
         if(gameOver){
             currentPage++;
 	    time(&now);
-	    sprintf(buffForLog, "%s | %d | %s", playerInfo.username, lastScore, ctime(&now));
+	    sprintf(buffForLog, "%s | %d | %d | %s", playerInfo.username, lastScore, lastWave, ctime(&now));
 	    sprintf(buffForPath, "data/%d.txt", getID("data/user.txt",playerInfo.username));
 	    insert(buffForPath, buffForLog);
 	    prepareData(); 
 	    setGameplayVariable();
 	}
+	
+	if((waveCounter%1000)==0){
+	    lastWave = waveCounter/1000;
+	    sprintf(buffForWave, "%d", lastWave);
+	    wave = loadTexture(loadTextSurface(font,buffForWave,&color));
+	}
+	waveCounter++;
     }
 }
