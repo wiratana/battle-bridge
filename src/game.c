@@ -128,13 +128,13 @@ void controlHandling()
 			    currentPage = 0;
                         break;             
                     case SDLK_UP:
-                        if(currentPage == 1) 
+                        if(currentPage == 1 && currentProcess == 0) 
                             selectedOption = (selectedOption <= 0) ? 1 : selectedOption - 1;
                         if(currentPage == 2 && dstTank.y > 1) 
                             dstTank.y -= player.speed;
                         break;
-                    case SDLK_DOWN:
-                        if(currentPage == 1)
+                    case SDLK_DOWN: 
+                        if(currentPage == 1 && currentProcess == 0) 
                             selectedOption = (selectedOption+1)%2;
                         if(currentPage == 2 && dstTank.y < WINDOW_HEIGHT - dstTank.h)
                             dstTank.y += player.speed;
@@ -146,7 +146,7 @@ void controlHandling()
                         }
                         break;
                     case SDLK_TAB:
-                        if(currentPage == 1) 
+                        if(currentPage == 1 && currentProcess == 1) 
                             selectedForm = (selectedForm+1)%2;
                         break;
                     case SDLK_BACKSPACE:
@@ -163,7 +163,7 @@ void controlHandling()
                 break;
             }
             case SDL_TEXTINPUT:
-                if(currentPage == 1) {
+                if(currentPage == 1 && currentProcess == 1) {
                     if(selectedForm == 0 && strlen(inputUsername) < 30)
                         strcat(inputUsername, event.text.text);
                     if(selectedForm == 1 && strlen(inputPassword) < 30)
