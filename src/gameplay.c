@@ -119,7 +119,8 @@ void updateGameplayVariable()
             if(((dstBullet.x + dstBullet.w/2) >= (dstShip[i].x)) &&
                ((dstBullet.x + dstBullet.w/2) <= (dstShip[i].x + dstShip[i].w)) &&
                ((dstBullet.y + dstBullet.h/2) >= (dstShip[i].y)) &&
-               ((dstBullet.y + dstBullet.h/2) <= (dstShip[i].y + dstShip[i].h))){
+               ((dstBullet.y + dstBullet.h/2) <= (dstShip[i].y + dstShip[i].h)) && 
+		bullet.status == 1){
                 bullet.status = 0;
                 dstShip[i].y = -dstShip[i].h;
                 enemies[i].speed = randSpeed[rand()%2];
