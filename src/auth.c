@@ -77,12 +77,12 @@ void setAuthVariable()
     dstPasswordForm.y = (WINDOW_HEIGHT - 100);
     dstPasswordForm.w = 500;
     dstPasswordForm.h = 32;
-    dstLabelForm.x = (WINDOW_WIDTH - 500)/2;
-    dstLabelForm.y = (WINDOW_HEIGHT - 400);
-    dstLabelForm.w = 500;
+    dstLabelForm.x = (WINDOW_WIDTH - 300)/2;
+    dstLabelForm.y = (WINDOW_HEIGHT - 300);
+    dstLabelForm.w = 300;
     dstLabelForm.h = 32;
     dstErrorMessage.x = (WINDOW_WIDTH - 500)/2;
-    dstErrorMessage.y = (WINDOW_HEIGHT - 300);
+    dstErrorMessage.y = (WINDOW_HEIGHT - 250);
     dstErrorMessage.w = 500;
     dstErrorMessage.h = 32;
     currentProcess = 0;
