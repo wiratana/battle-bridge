@@ -93,7 +93,6 @@ void auth()
 {
     SDL_RenderCopy(renderer, background, NULL, NULL);
     SDL_RenderCopy(renderer, gameTitle, &srcGameTitle, &dstGameTitle);
-    printf("%d", currentProcess);
     switch(currentProcess){
         case 0:
             authOption();
