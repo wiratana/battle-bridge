@@ -26,8 +26,6 @@ extern char inputPassword[100];
 extern char authError[255];
 extern SDL_Rect dstTank;
 extern struct player player;
-extern struct bullet bullet;
-extern int isFire;
 
 void game()
 {
@@ -140,9 +138,9 @@ void controlHandling()
                             dstTank.y += player.speed;
                         break;
                     case SDLK_SPACE:
-                        if(currentPage == 2 && bullet.status == 0){
-                           bullet.status = 1;
-                           isFire = 1;
+                        if(currentPage == 2 && player.pbullet.status == 0){
+                           player.pbullet.status = 1;
+                           player.pbullet.isFire = 1;
                         }
                         break;
                     case SDLK_TAB:

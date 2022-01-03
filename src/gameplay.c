@@ -19,12 +19,14 @@ static SDL_Texture* background;
 static SDL_Texture* bridge;
 static SDL_Texture* tank;
 static SDL_Texture* ship;
-static SDL_Texture* bulletG;
+static SDL_Texture* playerBullet;
+static SDL_Texture* enemyBullet;
 static SDL_Texture* score;
 static SDL_Rect dstBackground;
 static SDL_Rect dstBridge;
 static SDL_Rect dstShip[3];
 static SDL_Rect dstBullet;
+static SDL_Rect dstEnemyBullet[3];
 static SDL_Rect dstScore;
 static char buffForPath[512];
 
@@ -35,14 +37,13 @@ char buffForLog[512];
 struct enemy enemies[3];
 struct player player;
 struct bullet bullet;
-int isFire;
 int gameOver;
 int randSpeed[2] = {1, 2};
 time_t now;
 
 void setGameplayVariable(){
     lastScore = 0;
-    isFire = 0;
+    player.pbullet.isFire = 0;
     gameOver = 0;
     font = TTF_OpenFont("res/font/UbuntuMono-Regular.ttf", 24);
     color.r = 255;
@@ -55,7 +56,8 @@ void setGameplayVariable(){
     bridge = loadTexture(loadSurface("res/image/bridge.png"));
     tank = loadTexture(clearBackground(loadSurface("res/image/tank.png"),&white));
     ship = loadTexture(clearBackground(loadSurface("res/image/ship.png"),&white));
-    bulletG = loadTexture(clearBackground(loadSurface("res/image/bullet.png"),&white));
+    playerBullet = loadTexture(clearBackground(loadSurface("res/image/bullet.png"),&white));
+    enemyBullet = loadTexture(clearBackground(loadSurface("res/image/enemy_bullet.png"),&white));
     sprintf(buffForScore, "%d", lastScore);
     score = loadTexture(loadTextSurface(font,buffForScore,&color));
     dstBackground.x = 140;
@@ -73,7 +75,7 @@ void setGameplayVariable(){
     dstBullet.x = 0;
     dstBullet.y = 0;
     dstBullet.w = 25;
-    dstBullet.h = 25;
+    dstBullet.h = 25; 
     dstScore.x = WINDOW_WIDTH-120;
     dstScore.y = 20;
     dstScore.w = 75;
@@ -86,10 +88,16 @@ void setGameplayVariable(){
         dstShip[i].h = 75;
         enemies[i].status = 1;
         enemies[i].speed = 1;
+        enemies[i].ebullet.status = 0;
+        enemies[i].ebullet.speed = 4;
+	dstEnemyBullet[i].x = 0;
+	dstEnemyBullet[i].y = 0;
+	dstEnemyBullet[i].w = 25;
+	dstEnemyBullet[i].h = 25;
     }
     player.speed = 4;
-    bullet.status = 0;
-    bullet.speed = 7;
+    player.pbullet.status = 0;
+    player.pbullet.speed = 7;
 }
 
 void gameplay()
@@ -101,8 +109,13 @@ void gameplay()
     for(int i = 0; i < 3; i++){
         SDL_RenderCopy(renderer, ship, NULL, &dstShip[i]); 
     } 
-    if(bullet.status)
-        SDL_RenderCopy(renderer, bulletG, NULL, &dstBullet); 
+    printf("player bullet status : %d\n", player.pbullet.status);
+    if(player.pbullet.status)
+        SDL_RenderCopy(renderer, playerBullet, NULL, &dstBullet); 
+    for(int i = 0; i < 3; i++){
+	if(enemies[i].ebullet.status)
+	    SDL_RenderCopy(renderer, enemyBullet, NULL, &dstEnemyBullet[i]); 
+    }
     SDL_RenderPresent(renderer);
     SDL_Delay(1000/24);
 }
@@ -120,27 +133,54 @@ void updateGameplayVariable()
                ((dstBullet.x + dstBullet.w/2) <= (dstShip[i].x + dstShip[i].w)) &&
                ((dstBullet.y + dstBullet.h/2) >= (dstShip[i].y)) &&
                ((dstBullet.y + dstBullet.h/2) <= (dstShip[i].y + dstShip[i].h)) && 
-		bullet.status == 1){
-                bullet.status = 0;
+		player.pbullet.status == 1){
+                player.pbullet.status = 0;
                 dstShip[i].y = -dstShip[i].h;
                 enemies[i].speed = randSpeed[rand()%2];
                 lastScore += 1;
                 sprintf(buffForScore, "%d", lastScore);
                 score = loadTexture(loadTextSurface(font,buffForScore,&color));
             }
+
+	    if(dstShip[i].y >= dstTank.y && dstShip[i].y <= (dstTank.y + dstTank.h) &&
+		enemies[i].ebullet.status == 0){
+		enemies[i].ebullet.isFire = 1;
+		enemies[i].ebullet.status = 1;
+	    }
+
+	    if(enemies[i].ebullet.isFire){
+		dstEnemyBullet[i].x = dstShip[i].x;
+		dstEnemyBullet[i].y = dstShip[i].y + (dstShip[i].w-dstEnemyBullet[i].w)/2;
+		enemies[i].ebullet.isFire = 0;
+	    } 
+
+	    if(enemies[i].ebullet.status)
+		dstEnemyBullet[i].x -= enemies[i].ebullet.speed;
+
+	    if(dstEnemyBullet[i].x <= 0)
+		enemies[i].ebullet.status = 0;
+
+	    if(((dstEnemyBullet[i].x + dstEnemyBullet[i].w/2) >= (dstTank.x)) &&
+               ((dstEnemyBullet[i].x + dstEnemyBullet[i].w/2) <= (dstTank.x + dstTank.w/2)) &&
+               ((dstEnemyBullet[i].y + dstEnemyBullet[i].h/2) >= (dstTank.y)) &&
+               ((dstEnemyBullet[i].y + dstEnemyBullet[i].h/2) <= (dstTank.y + dstTank.h)) && 
+		enemies[i].ebullet.status == 1){
+		enemies[i].ebullet.status = 0;
+		gameOver = 1;
+            }
         }
  
-        if(isFire == 1){
+        if(player.pbullet.isFire == 1){
             dstBullet.x = dstTank.x + dstTank.w;
             dstBullet.y = dstTank.y + (dstTank.w-dstBullet.w)/2;
-            isFire = 0;
+            player.pbullet.isFire = 0;
         }
  
-        if(bullet.status)
-            dstBullet.x += bullet.speed;
+        if(player.pbullet.status)
+            dstBullet.x += player.pbullet.speed;
  
         if(dstBullet.x >= WINDOW_WIDTH-dstBullet.w)
-            bullet.status = 0;
+            player.pbullet.status = 0;
  
         if(gameOver){
             currentPage++;
