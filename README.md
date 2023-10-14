@@ -6,7 +6,7 @@ Battle Bridge is minimalist endless shooter game. Built with C, and use SDL2 sup
 Install all dependency for engine, image, and font support.
 ```
 sudo apt update
-sudo apt install -y libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev
+sudo apt install -y cmake libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev
 ```
 \
 Build program using this step
